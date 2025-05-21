@@ -20,9 +20,7 @@
 </style>
 
 <?php
-session_start(); // Make sure the session is started
-
-$establishment_id = isset($_SESSION['establishment_id']) ? $_SESSION['establishment_id'] : 0;
+session_start();
 
 include 'db_connect.php';
 
@@ -44,6 +42,16 @@ if (isset($_GET['id'])) {
 				<h5 class="form-header-title">Visitor Information</h5>
 			</div>
 
+			<div class="col-md-12 mt-3">
+                <label class="control-label">Capture Image</label><br>
+                <video id="video" width="320" height="240" autoplay></video><br>
+                <button type="button" class="btn btn-primary mt-2" id="capture">Capture</button>
+                <canvas id="canvas" width="320" height="240" style="display: none;"></canvas>
+                <input type="hidden" name="captured_image" id="captured_image">
+                <img id="preview" src="" alt="Captured Image Preview" class="mt-2" style="display:none; border:1px solid #ccc;">
+            </div>
+
+
 			<div class="col-md-4">
 				<label class="control-label">Full Name</label>
 				<input type="text" class="form-control" name="full_name" value="<?php echo isset($full_name) ? $full_name : '' ?>" required>
@@ -63,7 +71,8 @@ if (isset($_GET['id'])) {
 				<label class="control-label">Purpose</label>
 				<textarea name="purpose" class="form-control" rows="3" required><?php echo isset($purpose) ? $purpose : '' ?></textarea>
 			</div>
-			<input type="hidden" name="establishment_id" value="<?php echo isset($establishment_id) ? $establishment_id : '' ?>">
+			<input type="hidden" name="establishment_id"
+				value="<?php echo isset($establishment_id) ? $establishment_id : $_SESSION['login_establishment_id'] ?>">
 			<input type="hidden" name="created_at" value="<?= date('Y-m-d H:i:s') ?>">
 
 		</div>
@@ -108,5 +117,44 @@ if (isset($_GET['id'])) {
 			}
 		});
 	});
+
+	let globalStream; // Store the stream globally
+
+navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+        globalStream = stream; // Save stream globally
+        const video = document.getElementById('video');
+        video.srcObject = stream;
+    })
+    .catch(err => {
+        console.error("Error accessing webcam: ", err);
+    });
+
+document.getElementById('capture').addEventListener('click', function () {
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    const video = document.getElementById('video');
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const dataUrl = canvas.toDataURL('image/png');
+    document.getElementById('captured_image').value = dataUrl;
+
+    // Show preview
+    const preview = document.getElementById('preview');
+    preview.src = dataUrl;
+    preview.style.display = 'block';
+
+    // Stop webcam stream
+    if (globalStream) {
+        globalStream.getTracks().forEach(track => track.stop());
+    }
+
+    // Optional: Hide video element
+    video.style.display = 'none';
+});
+
 </script>
- 

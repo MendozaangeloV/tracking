@@ -37,6 +37,36 @@ if($action == 'save_visitor'){
 		echo $save;
 }
 
+if($action == 'scan_visitor'){
+    $save = $crud->scan_visitor();
+    if($save)
+        echo $save;
+}
+if ($action == 'clear_logs'){
+    $save = $crud->clear_logs();
+    if ($save)
+        echo $save;
+}
+
+if ($action == 'delete_visitors'){
+    $save = $crud->delete_visitors();
+    if ($save)
+        echo $save;
+}
+
+if ($action == 'delete_records'){
+    $save = $crud->delete_records();
+    if ($save)
+        echo $save;
+}
+
+if ($action == 'clear_records'){
+    $save = $crud->clear_records();
+    if ($save)
+        echo $save;
+}
+
+
 if($action == 'delete_user'){
 	$save = $crud->delete_user();
 	if($save)
